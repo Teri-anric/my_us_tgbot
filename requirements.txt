@@ -1,0 +1,4 @@
+Pytogram>=2.0.106
+gTTS>=2.4.0
+pygame>=2.5.2
+TgCrypto>=1.2.5
