@@ -6,5 +6,4 @@ from tts import STTWorker
 app = Client(CLIENT_NAME, api_id=API_ID, api_hash=API_HASH)
 stt = STTWorker()
 
-from handlers import fan_ro
-from handlers import speak
+import handlers

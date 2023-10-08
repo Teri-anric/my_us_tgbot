@@ -20,12 +20,3 @@ async def ban_me_please(cl: Client, m: Message):
     await rand_delete([m, m2], [0.6, 0.2])
 
 
-@app.on_message(filters.command("unban_me_please", prefixes='!'))
-async def unban_me_please(cl: Client, m: Message):
-    user = m.from_user
-    if m.reply_to_message:
-        user = m.reply_to_message.from_user
-    await cl.restrict_chat_member(m.chat.id, user.id, m.chat.permissions)
-    m2 = await m.reply(f"Страшно впасти у кайдани, Умирать в неволі, \nА ще гірше – спати, спати, І спати на волі…")
-    await sleep(20)
-    await rand_delete([m, m2], [0.8, 0.8])
