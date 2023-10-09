@@ -8,7 +8,7 @@ on:
 jobs:
   deployToServer:
     runs-on: ubuntu-latest
-    environment: main
+    environment: secrets
     steps:
       - uses: actions/checkout@v3
       - name: show the content of the directory 
@@ -19,18 +19,18 @@ jobs:
         with:
           rm: false
           overwrite: true
-          host: ${{secrets.SERVER_IP}}
-          password: ${{secrets.SSH_PASSWORD}}
-          username: ${{secrets.SSH_USERNAME}}
+          host: ${{SERVER_IP}}
+          password: ${{SSH_PASSWORD}}
+          username: ${{SSH_USERNAME}}
           source: .
-          target: ${{secrets.DEVELOPMENT_DIRECTORY}}
+          target: ${{DEVELOPMENT_DIRECTORY}}
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.SERVER_IP}}
-          username: ${{secrets.SSH_USERNAME}}
-          password: ${{secrets.SSH_PASSWORD}}
-          script: pm2 restart ${{secrets.APP_NAME}}
+          host: ${{SERVER_IP}}
+          username: ${{SSH_USERNAME}}
+          password: ${{SSH_PASSWORD}}
+          script: pm2 restart ${{APP_NAME}}
       
     
