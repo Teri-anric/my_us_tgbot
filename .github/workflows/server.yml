@@ -8,6 +8,7 @@ on:
 jobs:
   deployToServer:
     runs-on: ubuntu-latest
+    environment: secrets
     steps:
       - uses: actions/checkout@v3
       - name: show the content of the directory 
