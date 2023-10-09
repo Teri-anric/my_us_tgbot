@@ -22,7 +22,7 @@ jobs:
           host: ${{secrets.SERVER_IP}}
           password: ${{secrets.SSH_PASSWORD}}
           username: ${{secrets.SSH_USERNAME}}
-          source: "*"
+          source: .
           target: ${{secrets.DEVELOPMENT_DIRECTORY}}
 
       - name: executing remote ssh commands using password
