@@ -2,7 +2,9 @@ import random
 from datetime import timedelta
 from typing import List, Union
 
-from pyrogram.types import Message, Chat
+from pyrogram.enums import MessageEntityType
+from pyrogram.types import Message, Chat, MessageEntity
+from pyrogram import emoji
 
 
 async def rand_delete(arr_m: List[Message], rand: Union[float, List[float]] = 0.5):
@@ -50,5 +52,26 @@ def extract_time_args(args, default_type: str = "minutes",  default_param: dict 
             pass
     if not params:
         params = default
-    print(args, params)
     return timedelta(**params)
+
+
+key_emojis = [k for k in emoji.__dict__ if not k.startswith("_")]
+def rand_emoji():
+    key = random.choice(key_emojis)
+    return getattr(emoji, key)
+
+def extract_text_entity(text: str, entity: MessageEntity):
+    return text[entity.offset:entity.offset+entity.length]
+
+
+def extract_code(msg: Message):
+    if not msg.entities:
+        return None
+    return "\n\n".join(
+        map(lambda ent: extract_text_entity(msg.text, ent),
+            filter(
+                lambda ent: ent.type in (MessageEntityType.CODE, MessageEntityType.PRE),
+                msg.entities
+                )
+            )
+        )
