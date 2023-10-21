@@ -8,7 +8,7 @@ from misc import app
 from utils import rand_emoji
 
 
-async def teg_users(cl: Client, m: Message, mention_func=None, filter=enums.ChatMembersFilter.SEARCH):
+async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMembersFilter.SEARCH):
     args = m.text.split(maxsplit=1)
     text = ""
     if len(args) == 2:
