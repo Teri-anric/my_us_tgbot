@@ -13,7 +13,6 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
     text = ""
     if len(args) == 2:
         text = html.escape(args[-1])
-        text += "\n"
     users = []
     async for member in m.chat.get_members(limit=100, filter=filter):
         if not member.user:
@@ -27,6 +26,7 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
     for user in users:
         if mention_func is None:
             mention_text = None
+            text += "\n"
         else:
             mention_text = mention_func(user)
         text += user.mention(mention_text, style=ParseMode.HTML)
