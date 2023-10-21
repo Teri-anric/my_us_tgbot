@@ -28,6 +28,8 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
         else:
             mention_text = mention_func(user)
         text += user.mention(mention_text, style=ParseMode.HTML)
+    if not text:
+        return
     await cl.send_message(m.chat.id, text=text, reply_to_message_id=m.reply_to_message_id,
                           parse_mode=ParseMode.HTML)
 
