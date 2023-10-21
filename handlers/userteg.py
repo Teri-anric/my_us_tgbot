@@ -19,7 +19,7 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
             continue
         if member.user.is_deleted:
             continue
-        if not (member.user.is_bot and filter == ChatMembersFilter.BOTS):
+        if member.user.is_bot and not filter == ChatMembersFilter.BOTS:
             continue
         users.append(member.user)
     # generate text
