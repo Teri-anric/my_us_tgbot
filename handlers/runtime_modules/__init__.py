@@ -39,12 +39,71 @@ async def run_cmd(cl: Client, m: Message):
     os.system(*cmd)
 
 @register_cmd("restart")
-async def run_cmd(cl: Client, m: Message):
+async def restart(cl: Client, m: Message):
+    """ restart user bot """
     os.system(RESTART_CMD)
 
+@register_cmd("runtime_list")
+async def list_modules(cl: Client, m: Message):
+    """ list runtime modules """
+    msg = "List modules:"
+    for path in MODULES_DIR.glob('*.py'):
+        msg += "\n"
+        msg += path.stem
+    await m.edit_text(msg)
+
+@register_cmd("get_runtime")
+async def list_modules(cl: Client, m: Message):
+    """ get file runtime module """
+    _, *modules = m.text.split(maxsplit=1)
+    if not modules:
+        return
+    path = MODULES_DIR / f"{modules[-1]}.py"
+    if not path.exists():
+        return await m.edit_text(f'not found module name "{modules[0]}"')
+    await m.reply_document(path.open('rb'))
+
+
+@register_cmd("remove_runtime")
+async def remove_module(cl: Client, m: Message):
+    """ delete runtime module """
+    _, *modules = m.text.split(maxsplit=1)
+    if not modules:
+        return
+    path = MODULES_DIR / f"{modules[-1]}.py"
+    if not path.exists():
+        return await m.edit_text(f'not found module name "{modules[0]}"')
+    path.unlink(True)
+    await m.edit_text("delete and restart")
+    os.system(RESTART_CMD)
+
+@register_cmd("runtime_tb")
+async def tb_module(cl: Client, m: Message):
+    """ get full traceback error module """
+    _, *tbs = m.text.split(maxsplit=1)
+    if not tbs:
+        return
+    path = TRACEBACKS_DIR / f"{tbs[-1]}.txt"
+    if not path.exists():
+        return await m.edit_text(f'not found tb name "{tbs[0]}"')
+    await m.edit_text(f"tb:{path.open().read()}")
+
+@register_cmd("runtime_tb_list")
+async def tb_list_module(cl: Client, m: Message):
+    """ list traceback from modules """
+    msg = "List traceback:"
+    for path in TRACEBACKS_DIR.glob('*.txt'):
+        msg += "\n"
+        msg += path.stem
+    await m.edit_text(msg)
 
 @register_cmd("add_runtime")
 async def add_module(cl: Client, m: Message):
+    """ add module
+    save and run code, auto load code from restart
+    args:
+        name=<NAME>
+    """
     # parse args
     cmd, *args = m.text.split()
     name = datetime.now().strftime("m%y_%m_%d__%H_%M_%S")
