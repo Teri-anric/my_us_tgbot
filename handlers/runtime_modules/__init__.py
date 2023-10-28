@@ -7,7 +7,7 @@ from shutil import rmtree
 from pyrogram import filters, Client
 from pyrogram.types import Message
 
-from misc import app
+from misc import app, register_cmd
 from utils import extract_code
 
 
@@ -33,17 +33,17 @@ for path in MODULES_DIR.glob('*.py'):
     except:
         pass
 
-@app.on_message(filters.command(["run"], prefixes='!', case_sensitive=True) & filters.me)
+@register_cmd("run")
 async def run_cmd(cl: Client, m: Message):
     _, *cmd = m.text.split(maxsplit=1)
     os.system(*cmd)
 
-@app.on_message(filters.command(["restart"], prefixes='!', case_sensitive=True) & filters.me)
+@register_cmd("restart")
 async def run_cmd(cl: Client, m: Message):
     os.system(RESTART_CMD)
 
 
-@app.on_message(filters.command(["add_runtime"], prefixes='!', case_sensitive=True) & filters.me)
+@register_cmd("add_runtime")
 async def add_module(cl: Client, m: Message):
     # parse args
     cmd, *args = m.text.split()

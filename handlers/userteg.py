@@ -1,10 +1,10 @@
 import html
 
-from pyrogram import filters, Client
+from pyrogram import Client
 from pyrogram.enums import ParseMode, ChatMembersFilter
-from pyrogram.types import Message, Chat
+from pyrogram.types import Message
 
-from misc import app
+from misc import register_cmd
 from utils import rand_emoji
 
 
@@ -36,19 +36,18 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
                           parse_mode=ParseMode.HTML)
 
 
-@app.on_message(filters.command(["all"], prefixes='!', case_sensitive=True) & filters.me & filters.group)
+@register_cmd("all", on_group=True)
 async def teg_first_100_users(cl: Client, m: Message):
-    func = lambda chat: rand_emoji()
-    await teg_users(cl, m, func)
+    await teg_users(cl, m, mention_func=lambda chat: rand_emoji() + "\n")
 
-@app.on_message(filters.command(["tegadmin"], prefixes='!', case_sensitive=True) & filters.me & filters.group)
+@register_cmd("tegadmin", on_group=True)
 async def teg_admins(cl: Client, m: Message):
-    await teg_users(cl, m, mention_func=None, filter=ChatMembersFilter.ADMINISTRATORS)
+    await teg_users(cl, m, filter=ChatMembersFilter.ADMINISTRATORS)
 
-@app.on_message(filters.command(["tegbot"], prefixes='!', case_sensitive=True) & filters.me & filters.group)
+@register_cmd("tegbot", on_group=True)
 async def teg_admins(cl: Client, m: Message):
-    await teg_users(cl, m, mention_func=None, filter=ChatMembersFilter.BOTS)
+    await teg_users(cl, m, filter=ChatMembersFilter.BOTS)
 
-@app.on_message(filters.command(["tegban"], prefixes='!', case_sensitive=True) & filters.me & filters.group)
+@register_cmd("tegban", on_group=True)
 async def teg_admins(cl: Client, m: Message):
-    await teg_users(cl, m, mention_func=None, filter=ChatMembersFilter.BANNED)
+    await teg_users(cl, m, filter=ChatMembersFilter.BANNED)

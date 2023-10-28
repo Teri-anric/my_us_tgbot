@@ -3,48 +3,55 @@ import random
 from functools import partial
 from traceback import print_exc
 
-from pyrogram import filters, Client
+from pyrogram import Client
 from pyrogram.types import Message
 
-from misc import app
+from misc import register_cmd
 from utils import extract_code
 
 
-@app.on_message(filters.command(["ev"], prefixes='!', case_sensitive=True) & filters.me)
+def get_code(m: Message):
+    cmd, *args = m.text.split("\n", maxsplit=1)
+    raw = False
+    reply = False
+    for arg in cmd[0].split():
+        reply |= arg.startswith('-r')
+        raw |= arg.startswith('-raw')
+    if reply:
+        if raw:
+            return m.reply_to_message.text
+        return extract_code(m.reply_to_message)
+    if raw:
+        return args[0] if args else None
+    return extract_code(m)
+
+
+@register_cmd("ev")
 async def cmd_eval(cl: Client, m: Message):
-    cmd, *args = m.text.split(maxsplit=1)
-    code = None
-    if m.reply_to_message:
-        code = m.reply_to_message.text
-    if args:
-        code = args[0]
-    if not code:
-        return
+    code = get_code(m)
+    if code:
+        return await m.edit(f"Code is empty")
     try:
+        msg = m.reply_to_message if m.reply_to_message else m
         result = eval(code, globals(), locals())
         await m.edit(str(result))
     except Exception as e:
         await m.edit(f"Error: {e}")
 
 
-@app.on_message(filters.command(["ex"], prefixes='!', case_sensitive=True) & filters.me)
+@register_cmd("ex")
 async def cmd_exec(cl: Client, m: Message):
-    msg = m.reply_to_message if m.reply_to_message else m
-    code = extract_code(msg)
-    if not code:
-        _, code = m.text.split(maxsplit=1)
-        if m.reply_to_message:
-            code = msg.text
+    code = get_code(m)
+    if code:
+        return await m.edit(f"Code is empty")
     buf = io.StringIO()
-    change = {
+    glo = globals() | {
         "print": partial(print, file=buf),
         "input": lambda x=0: str(random.randint(0, 100))
     }
-    g = globals()
-    g.update(change)
-    l = locals()
+    loc = locals()
     try:
-        exec(code, g, l)
+        exec(code, glo, local)
     except:
         print_exc(file=buf)
     buf.seek(0)
