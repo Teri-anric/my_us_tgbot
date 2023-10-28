@@ -1,14 +1,14 @@
 from asyncio import sleep
 from datetime import datetime
 
-from pyrogram import filters, Client
+from pyrogram import Client
 from pyrogram.types import Message, ChatPermissions
 
-from misc import app
+from misc import register_cmd
 from utils import export_link, extract_time_args
 
 
-@app.on_message(filters.me & filters.command(prefixes='!', commands=["ban"]))
+@register_cmd("ban")
 async def ban_user(cl: Client, m: Message):
     if m.reply_to_message and m.reply_to_message.from_user:
         try:
@@ -20,7 +20,7 @@ async def ban_user(cl: Client, m: Message):
     await m.edit_text("бан? :(")
 
 
-@app.on_message(filters.me & filters.command(prefixes='!', commands=["unban"]))
+@register_cmd("unban")
 async def unban_user(cl: Client, m: Message):
     cmd, *args = m.text.lower().split()
     if m.reply_to_message and m.reply_to_message.from_user:
@@ -32,15 +32,15 @@ async def unban_user(cl: Client, m: Message):
             else:
                 await m.edit_text("Живий?")
                 await cl.send_message(m.reply_to_message.from_user.id,
-                       f"Вас було розбанено в товаристві: {m.chat.title}\n"
-                            f"посилання {await export_link(m.chat)}")
+                                      f"Вас було розбанено в товаристві: {m.chat.title}\n"
+                                      f"посилання {await export_link(m.chat)}")
             return
         except:
             pass
     await m.edit_text("Помер? :(")
 
 
-@app.on_message(filters.me & filters.command(prefixes='!', commands=["ro"]))
+@register_cmd("ro")
 async def ro_user(cl: Client, m: Message):
     cmd, *args = m.text.split()
     if m.reply_to_message and m.reply_to_message.from_user:
