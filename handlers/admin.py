@@ -10,6 +10,7 @@ from utils import export_link, extract_time_args
 
 @register_cmd("ban")
 async def ban_user(cl: Client, m: Message):
+    """ ban user from chat """
     if m.reply_to_message and m.reply_to_message.from_user:
         try:
             await m.chat.ban_member(m.reply_to_message.from_user.id)
@@ -22,19 +23,25 @@ async def ban_user(cl: Client, m: Message):
 
 @register_cmd("unban")
 async def unban_user(cl: Client, m: Message):
+    """ remote user from ban list
+    and send unban message
+    args:
+        w - add to member chat
+    """
     cmd, *args = m.text.lower().split()
     if m.reply_to_message and m.reply_to_message.from_user:
         try:
             await m.chat.unban_member(m.reply_to_message.from_user.id)
             if 'w' in args:
-                await m.chat.add_members(m.reply_to_message.from_user.id)
-                await m.edit_text("Вас було розбанено, подякуєш бан)")
-            else:
-                await m.edit_text("Живий?")
-                await cl.send_message(m.reply_to_message.from_user.id,
-                                      f"Вас було розбанено в товаристві: {m.chat.title}\n"
-                                      f"посилання {await export_link(m.chat)}")
-            return
+                try:
+                    await m.chat.add_members(m.reply_to_message.from_user.id)
+                except:
+                    pass
+                return await m.edit_text("Вас було розбанено, подякуєш бан)")
+            await m.edit_text("Живий?")
+            await cl.send_message(m.reply_to_message.from_user.id,
+                                  f"Вас було розбанено в товаристві: {m.chat.title}\n"
+                                  f"посилання {await export_link(m.chat)}")
         except:
             pass
     await m.edit_text("Помер? :(")
@@ -42,6 +49,17 @@ async def unban_user(cl: Client, m: Message):
 
 @register_cmd("ro")
 async def ro_user(cl: Client, m: Message):
+    """ read only
+    int and suffix parrse to time
+    not suffix default minutes
+    default time 1 hour
+    suffix:
+        d - days
+        s - seconds
+        m - minutes
+        h - hours
+        w - weeks
+    """
     cmd, *args = m.text.split()
     if m.reply_to_message and m.reply_to_message.from_user:
         try:
@@ -56,6 +74,7 @@ async def ro_user(cl: Client, m: Message):
 
 @register_cmd("unmute")
 async def unmute_user(cl: Client, m: Message):
+    """ set default premmision """
     user = m.from_user
     if m.reply_to_message:
         user = m.reply_to_message.from_user

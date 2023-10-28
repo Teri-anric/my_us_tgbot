@@ -28,6 +28,11 @@ def get_code(m: Message):
 
 @register_cmd("ev")
 async def cmd_eval(cl: Client, m: Message):
+    """ eval code
+    args:
+     -r - from reply message
+     -raw - not extract block code
+    """
     code = get_code(m)
     if code:
         return await m.edit(f"Code is empty")
@@ -41,6 +46,14 @@ async def cmd_eval(cl: Client, m: Message):
 
 @register_cmd("ex")
 async def cmd_exec(cl: Client, m: Message):
+    """ execute code
+    input - return rand integer from 0 to 100
+    print - print to result message
+
+    args:
+     -r - from reply message
+     -raw - not extract block code
+    """
     code = get_code(m)
     if code:
         return await m.edit(f"Code is empty")

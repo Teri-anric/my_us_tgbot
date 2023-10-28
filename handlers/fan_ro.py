@@ -10,6 +10,7 @@ from misc import register_cmd
 
 @register_cmd("ban_me_please", "do_not_click", prefixes=["!", "/"], on_group="yaslovoblud", public=True)
 async def ban_me_please(cl: Client, m: Message):
+    """ fan read only for @yaslovoblud chat """
     if not m.from_user:
         return
     num = random.randint(1, 20)
