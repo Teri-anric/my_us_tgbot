@@ -14,9 +14,9 @@ def get_code(m: Message):
     cmd, *args = m.text.split("\n", maxsplit=1)
     raw = False
     reply = False
-    for arg in cmd[0].split():
-        reply |= arg.startswith('-r')
-        raw |= arg.startswith('-raw')
+    for arg in cmd.split():
+        reply |= (arg == '-r')
+        raw |= (arg == '-raw')
     if reply:
         if raw:
             return m.reply_to_message.text
@@ -34,7 +34,7 @@ async def cmd_eval(cl: Client, m: Message):
      -raw - not extract block code
     """
     code = get_code(m)
-    if code:
+    if not code:
         return await m.edit(f"Code is empty")
     try:
         msg = m.reply_to_message if m.reply_to_message else m
@@ -55,16 +55,17 @@ async def cmd_exec(cl: Client, m: Message):
      -raw - not extract block code
     """
     code = get_code(m)
-    if code:
+    if not code:
         return await m.edit(f"Code is empty")
     buf = io.StringIO()
-    glo = globals() | {
+    glo = globals().copy()
+    glo.update({
         "print": partial(print, file=buf),
         "input": lambda x=0: str(random.randint(0, 100))
-    }
+    })
     loc = locals()
     try:
-        exec(code, glo, local)
+        exec(code, glo, loc)
     except:
         print_exc(file=buf)
     buf.seek(0)

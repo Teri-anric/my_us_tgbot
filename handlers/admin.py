@@ -82,3 +82,20 @@ async def unmute_user(cl: Client, m: Message):
     m2 = await m.reply(f"Страшно впасти у кайдани, Умирать в неволі, \nА ще гірше – спати, спати, І спати на волі…")
     await sleep(20)
     await rand_delete([m, m2], [0.8, 0.8])
+
+
+@register_cmd("slowmode")
+async def slowmode(cl: Client, m: Message):
+    """ set slowmode in chat
+    default time 30 sec.
+    """
+    cmd, *args = m.text.split()
+    if m.reply_to_message and m.reply_to_message.from_user:
+        try:
+            time = 0 if not args else int(args[0])
+            await cl.set_slow_mode(m.chat.id, time)
+            await m.edit_text(f"Слов мод {time}хв")
+            return
+        except Exception as e:
+            print(e)
+    await m.edit_text("Тишина!")
