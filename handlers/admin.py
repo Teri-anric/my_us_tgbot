@@ -88,14 +88,14 @@ async def unmute_user(cl: Client, m: Message):
 async def slowmode(cl: Client, m: Message):
     """ set slowmode in chat
     default time 30 sec.
+    Valid values are: 0 or None (off), 10, 30, 60 (1m), 300 (5m), 900 (15m) or 3600 (1h).
     """
     cmd, *args = m.text.split()
-    if m.reply_to_message and m.reply_to_message.from_user:
-        try:
-            time = 0 if not args else int(args[0])
-            await cl.set_slow_mode(m.chat.id, time)
-            await m.edit_text(f"Слов мод {time}хв")
-            return
-        except Exception as e:
-            print(e)
+    try:
+        time = 30 if not args else int(args[0])
+        await cl.set_slow_mode(m.chat.id, time)
+        await m.edit_text(f"Слов мод {time}сек")
+        return
+    except Exception as e:
+        print(e)
     await m.edit_text("Тишина!")
