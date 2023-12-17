@@ -2,15 +2,17 @@ from typing import Optional, Union, List, Callable
 
 from pyrogram import Client, filters, types
 
-from config import API_ID, API_HASH, CLIENT_NAME
+from config import API_ID, API_HASH, CLIENT_NAME, TTS_ENABLE
 
-# from tts import STTWorker
+if TTS_ENABLE:
+    from tts import TTSWorker
+    tts = TTSWorker()
 
 app = Client(CLIENT_NAME, api_id=API_ID, api_hash=API_HASH,
              app_version="Terigram 0.0.1", device_model="UB")
 
 
-# stt = STTWorker()
+
 handlers = []
 handlers_map = {}
 def register_cmd(*commands: str, prefixes: Union[str, List[str]] = '!', on_group: Union[bool, None, str] = None,

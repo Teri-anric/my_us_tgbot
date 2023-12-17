@@ -8,7 +8,7 @@ from threading import Thread
 from queue import Queue
 
 
-class STTWorker(Thread):
+class TTSWorker(Thread):
     _time_out = 0.1
 
     def __init__(self):

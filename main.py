@@ -1,8 +1,10 @@
 from misc import app
-# from misc import stt
+from config import TTS_ENABLE
 import handlers
 
 
 if __name__ == '__main__':
-    # stt.start()
+    if TTS_ENABLE:
+        from misc import tts
+        tts.start()
     app.run()
