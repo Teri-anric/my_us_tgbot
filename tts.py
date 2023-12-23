@@ -12,6 +12,7 @@ class TTSWorker(Thread):
     _time_out = 0.1
 
     def __init__(self):
+        self._not_stop = False
         self._queue = Queue()
         super().__init__(daemon=True)
 
@@ -38,9 +39,12 @@ class TTSWorker(Thread):
         self._queue.put(temp_path)
 
     def run(self):
-        while 1:
+        self._not_stop = True
+        while self._not_stop:
             temp_path = self._queue.get(block=True)
             try:
+                if temp_path is None:
+                    continue
                 pygame.mixer.init()
                 pygame.mixer.music.load(temp_path)
                 pygame.mixer.music.play()
@@ -51,3 +55,11 @@ class TTSWorker(Thread):
                 pygame.mixer.quit()
                 os.remove(temp_path)
 
+    def close(self):
+        self._not_stop = False
+        self._queue.put(None)
+        self.join()
+
+    @property
+    def running(self):
+        return self._not_stop
