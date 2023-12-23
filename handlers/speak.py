@@ -1,15 +1,21 @@
 import re
+from contextlib import suppress
 
 from pyrogram import filters, Client
 from pyrogram.types import Message
+from pyrogram.filters import create
 
-from misc import app, tts
+from misc import app, register_cmd
+from tts import TTSWorker
+
 
 url_regex = "https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
 
+tts: TTSWorker = TTSWorker()
+speaking_chat_ids = []
 
 def validate_text(text: str):
-    text = re.sub(url_regex, "link", text)
+    text = re.sub(url_regex, "силка", text)
     return text
 
 
@@ -51,6 +57,35 @@ def messsage_to_text(message: Message, include_chat: bool = False, include_user:
     return m
 
 
-@app.on_message((filters.chat("yaslovoblud") | filters.private) & ~(filters.me | filters.bot))
+@register_cmd("speak")
+async def speak_cmd(cl: Client, m: Message):
+    """ Speak a message on/off
+    arg:
+        on - start speak all message
+        off - stop speak
+        add - add chat to speaking
+        remove - remove chat to speaking
+    """
+    global tts
+    _, *args = m.text.split(maxsplit=1)
+    if "add" in args:
+        speaking_chat_ids.append(m.chat.id)
+        return await m.edit_text("chat add to speaking")
+    if "remove" in args:
+        with suppress(ValueError):
+            speaking_chat_ids.remove(m.chat.id)
+        return await m.edit_text("chat remove from speaking")
+    if tts.running:
+        tts.close()
+    if "off" in args:
+        return await m.edit_text("speak is stopped")
+    tts = TTSWorker()
+    tts.start()
+    await m.edit_text("speak is started")
+
+active_tts_filter = create(lambda _, __, m: tts.running, "active_tts_filter")
+speaking_chat_filter = create(lambda _, __, m: m.chat.id in speaking_chat_ids, "speaking_chat_filter")
+
+@app.on_message(active_tts_filter & (speaking_chat_filter | filters.private) & ~filters.me)
 async def handle_message(client: Client, message: Message):
     tts.add_message(messsage_to_text(message).lower())
