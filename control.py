@@ -1,6 +1,6 @@
 from typing import Optional, Union, List, Callable, Tuple, Dict
 
-from pyrogram import Client, filters, types
+from pyrogram import Client, filters, types, errors
 
 from config import API_ID, API_HASH, CLIENT_NAME, setting
 from tts import TTSWorker
@@ -13,6 +13,18 @@ from misc import app
 handlers: List[Tuple[List[str], Callable]] = []
 # save index (cmd, index)
 handlers_map: Dict[str, int] = {}
+
+
+async def smart_edit_text(m: types.Message, text):
+    if m.from_user.is_self:
+        return await m.edit(text)
+    r = await m.reply_text(text)
+    try:
+        await m.delete()
+    except errors.RPCError:
+        pass
+    return r
+
 
 
 def register_cmd(*commands: str, prefixes: Union[str, List[str]] = '!', on_group: Union[bool, None, str] = None,
@@ -47,7 +59,7 @@ def register_cmd(*commands: str, prefixes: Union[str, List[str]] = '!', on_group
     return decorator
 
 @register_cmd("op")
-async def op(m: types.Message):
+async def op(cl: Client, m: types.Message):
     """ add access to commands
     flags:
         chat - access to chat
@@ -60,7 +72,7 @@ async def op(m: types.Message):
     for arg in args:
         if arg == "-chat":
             params["chat"] = True
-        if arg == "-full":
+        elif arg == "-full":
             params["full"] = True
         else:
             cmds.append(arg)
@@ -72,7 +84,8 @@ async def op(m: types.Message):
     if params.get("full", False):
         cmds = "full"
     with setting as data:
-        data.setdefault("access_map", {}).update({ident: cmds})
+        access_map = data.setdefault("access_map", {})
+        access_map[str(ident)] = cmds
     await m.edit("Successfully added access to commands")
 
 
@@ -87,13 +100,27 @@ async def cmd_help(cl: Client, m: types.Message):
         index = handlers_map.get(args[0], None)
         text = "Command not found 🤷‍♂️"
         if index is not None:
-            text = handlers[index].__doc__
-        if not text:
-            text = "Command not info :("
+            cmds, func = handlers[index]
+            text = " ".join(cmds) + "\n"
+            _text = "Command not info :("
+            if func.__doc__ is not None:
+                _text = func.__doc__
+            text += _text
     else:
         text = "Commands list:"
         _text = ""
-        for commands, func in handlers:
+        _handlers = handlers
+        # filter by not self
+        if not m.from_user.is_self:
+            access = setting.get("access_map", {}).get(str(m.from_user.id), [])
+            if access != "full":
+                _handlers = []
+                for cmd in access:
+                    index = handlers_map.get(cmd, None)
+                    if index is not None:
+                        _handlers.append(handlers[index])
+        # generate text
+        for commands, func in _handlers:
             if func.__doc__:
                 command = ", ".join(commands)
                 doc, *_ = func.__doc__.split('\n', maxsplit=1)
@@ -102,4 +129,4 @@ async def cmd_help(cl: Client, m: types.Message):
             _text = "\nNot commands info"
         text += _text
 
-    await m.edit(text=text)
+    await smart_edit_text(m, text=text)

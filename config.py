@@ -15,7 +15,7 @@ class Setting:
         self.data = {}
 
     def get(self, key, default=None):
-        return self.get(key, default)
+        return self.data.get(key, default)
 
     def update(self, m, **kwargs):
         self.data.update(m, **kwargs)
@@ -34,8 +34,9 @@ class Setting:
     def __enter__(self):
         return self.data
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
 
 
 setting = Setting(SETTING_PATH)
+setting.load()

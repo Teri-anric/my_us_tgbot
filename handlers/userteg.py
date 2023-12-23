@@ -39,7 +39,7 @@ async def teg_users(cl: Client, m: Message, mention_func=None, filter=ChatMember
 @register_cmd("all", on_group=True)
 async def teg_first_100_users(cl: Client, m: Message):
     """ teg all user from chat """
-    await teg_users(cl, m, mention_func=lambda chat: rand_emoji() + "\n")
+    await teg_users(cl, m, mention_func=lambda chat: rand_emoji())
 
 @register_cmd("tegadmin", on_group=True)
 async def teg_admins(cl: Client, m: Message):

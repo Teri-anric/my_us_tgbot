@@ -4,7 +4,7 @@ from datetime import datetime
 from pyrogram import Client
 from pyrogram.types import Message, ChatPermissions
 
-from misc import register_cmd
+from misc import register_cmd, smart_edit_text
 from utils import export_link, extract_time_args
 
 
@@ -14,11 +14,11 @@ async def ban_user(cl: Client, m: Message):
     if m.reply_to_message and m.reply_to_message.from_user:
         try:
             await m.chat.ban_member(m.reply_to_message.from_user.id)
-            await m.edit_text("Бан, бан, БАН!")
+            await smart_edit_text(m, "Бан, бан, БАН!")
             return
         except:
             pass
-    await m.edit_text("бан? :(")
+    await smart_edit_text(m, "бан? :(")
 
 
 @register_cmd("unban")
@@ -37,14 +37,14 @@ async def unban_user(cl: Client, m: Message):
                     await m.chat.add_members(m.reply_to_message.from_user.id)
                 except:
                     pass
-                return await m.edit_text("Вас було розбанено, подякуєш бан)")
-            await m.edit_text("Живий?")
+                return await smart_edit_text(m, "Вас було розбанено, подякуєш бан)")
+            await smart_edit_text(m, "Живий?")
             await cl.send_message(m.reply_to_message.from_user.id,
                                   f"Вас було розбанено в товаристві: {m.chat.title}\n"
                                   f"посилання {await export_link(m.chat)}")
         except:
             pass
-    await m.edit_text("Помер? :(")
+    await smart_edit_text(m, "Помер? :(")
 
 
 @register_cmd("ro")
@@ -65,11 +65,11 @@ async def ro_user(cl: Client, m: Message):
         try:
             await cl.restrict_chat_member(m.chat.id, m.reply_to_message.from_user.id, ChatPermissions(),
                                           datetime.now() + extract_time_args(args))
-            await m.edit_text("Тихо, тихо, спрокійно все буде добре.")
+            await smart_edit_text(m, "Тихо, тихо, спрокійно все буде добре.")
             return
         except Exception as e:
             print(e)
-    await m.edit_text("Стули пельку вже :(")
+    await smart_edit_text(m, "Стули пельку вже :(")
 
 
 @register_cmd("unmute")
@@ -94,8 +94,8 @@ async def slowmode(cl: Client, m: Message):
     try:
         time = 30 if not args else int(args[0])
         await cl.set_slow_mode(m.chat.id, time)
-        await m.edit_text(f"Слов мод {time}сек")
+        await smart_edit_text(m, f"Слов мод {time}сек")
         return
     except Exception as e:
         print(e)
-    await m.edit_text("Тишина!")
+    await smart_edit_text(m, "Тишина!")

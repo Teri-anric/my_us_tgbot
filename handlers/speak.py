@@ -5,7 +5,7 @@ from pyrogram import filters, Client
 from pyrogram.types import Message
 from pyrogram.filters import create
 
-from misc import app, register_cmd
+from misc import app, register_cmd, smart_edit_text
 from tts import TTSWorker
 
 
@@ -70,18 +70,18 @@ async def speak_cmd(cl: Client, m: Message):
     _, *args = m.text.split(maxsplit=1)
     if "add" in args:
         speaking_chat_ids.append(m.chat.id)
-        return await m.edit_text("chat add to speaking")
+        return await smart_edit_text(m, "chat add to speaking")
     if "remove" in args:
         with suppress(ValueError):
             speaking_chat_ids.remove(m.chat.id)
-        return await m.edit_text("chat remove from speaking")
+        return await smart_edit_text(m, "chat remove from speaking")
     if tts.running:
         tts.close()
     if "off" in args:
-        return await m.edit_text("speak is stopped")
+        return await smart_edit_text(m, "speak is stopped")
     tts = TTSWorker()
     tts.start()
-    await m.edit_text("speak is started")
+    await smart_edit_text(m, "speak is started")
 
 active_tts_filter = create(lambda _, __, m: tts.running, "active_tts_filter")
 speaking_chat_filter = create(lambda _, __, m: m.chat.id in speaking_chat_ids, "speaking_chat_filter")

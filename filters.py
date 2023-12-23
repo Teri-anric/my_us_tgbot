@@ -12,8 +12,8 @@ class AccessFilter(Filter):
     def __call__(self, cl: Client, m: Message):
         access_map: dict = setting.get("access_map", {})
         for ident in [m.from_user.id, m.chat.id]:
-            access = access_map.get(ident, None)
-            if check_access(access):
+            access = access_map.get(str(ident), None)
+            if self.check_access(access):
                 return True
         return False
 

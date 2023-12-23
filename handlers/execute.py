@@ -6,7 +6,7 @@ from traceback import print_exc
 from pyrogram import Client
 from pyrogram.types import Message
 
-from misc import register_cmd
+from misc import register_cmd, smart_edit_text
 from utils import extract_code
 
 
@@ -35,13 +35,13 @@ async def cmd_eval(cl: Client, m: Message):
     """
     code = get_code(m)
     if not code:
-        return await m.edit(f"Code is empty")
+        return await smart_edit_text(m, f"Code is empty")
     try:
         msg = m.reply_to_message if m.reply_to_message else m
         result = eval(code, globals(), locals())
-        await m.edit(str(result))
+        await smart_edit_text(m, str(result))
     except Exception as e:
-        await m.edit(f"Error: {e}")
+        await smart_edit_text(m, f"Error: {e}")
 
 
 @register_cmd("ex")
@@ -56,7 +56,7 @@ async def cmd_exec(cl: Client, m: Message):
     """
     code = get_code(m)
     if not code:
-        return await m.edit(f"Code is empty")
+        return await smart_edit_text(m, f"Code is empty")
     buf = io.StringIO()
     glo = globals().copy()
     glo.update({

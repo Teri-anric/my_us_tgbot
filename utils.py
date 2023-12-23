@@ -51,7 +51,7 @@ def extract_time_args(args, default_type: str = "minutes",  default_param: dict 
                 raise e
             pass
     if not params:
-        params = default
+        params = default_param
     return timedelta(**params)
 
 

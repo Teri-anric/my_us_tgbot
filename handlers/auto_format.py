@@ -5,7 +5,7 @@ from typing import Any, Mapping, Sequence
 from pyrogram import Client
 from pyrogram.types import Message
 
-from misc import register_cmd
+from misc import register_cmd, smart_edit_text
 
 
 class EvalFormatter(string.Formatter):
@@ -29,4 +29,4 @@ def cmd_eval(cl: Client, msg: Message):
         text = f.format(text, msg=msg, math=math, cl=cl)
     except Exception as e:
         text += f"\n{e}"
-    msg.edit_text(text)
+    smart_edit_text(m, text)
